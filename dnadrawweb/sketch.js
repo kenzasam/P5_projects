@@ -18,6 +18,8 @@ var counter;
 
 function preload(){
   dna = loadStrings('dna.txt', fileready);
+  largeunit = loadImage("largesubunit.png");
+  //smallunit = loadImage("smallsubunit.tif");
 }
 
 function setup() {
@@ -51,6 +53,7 @@ function fileready(dna){
   console.log(jrna.length);
   var idx = 0;
   //console.log(jrna.indexOf("AUG"));
+  //make a list of all startsodon position indices
   for (idx = 0; (idx = jrna.indexOf("AUG", idx)) >= 0; idx++){
     startcodons.push(idx);
   }
@@ -65,21 +68,32 @@ function draw() {
   //DNA RNA drawing code
   if (makeRNA){ //if RNA is TRUE my mousedragged...
     textFont(f);
-    basecolor(base);
+    Basecolor(base);
     text(base,mouseX,mouseY);
-    basecolor(baseRNA);
+    Basecolor(baseRNA);
     text(baseRNA,mouseX,mouseY+17);
-    //if (startcodon.includes(i)==true){
-  //    mmm
-  //  }//if AUG detected in rna then I should display Ribosomes
+    if (startcodons.includes(i)==true){
+      ellipse(mouseX, mouseY-random(5,3),25,35);
+    }
   }else{ //just draw dna when mousemoved
     textFont(f);
-    basecolor(base);
+    Basecolor(base);
     text(base,mouseX,mouseY);
-  }
+  }//if AUG detected in rna then I should display Ribosomes. Bt I should also redraw the old ribosomes...
 }
 //
-function basecolor(base){
+function RibosomeBig(){
+
+  x=
+  y=
+  image(largeunit,mouseX, mouseY-random(5,3));
+}
+//
+function RibosomeSmall(){
+  image(largeunit,mouseX, mouseY-4+random(-1,1));
+}
+//
+function Basecolor(base){
   if (base =='G'){
       clr = clrG;}
   else if (base=='C'){

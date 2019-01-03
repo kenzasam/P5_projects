@@ -26,7 +26,7 @@ function setup() {
   // put setup code here
  canvas = createCanvas(windowWidth, windowHeight);
  canvas.position(0,0);
- canvas.style('z-index', '-1')
+ canvas.style('z-index', '-1');
  smooth();
  //ackground(255);
  f = textFont('Ariel',26,true); // courrier, 16 point, anti-aliasing on;

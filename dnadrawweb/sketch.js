@@ -1,5 +1,5 @@
 var dna ;
-var rna;
+var jrna;
 var jdna ;
 var clr ;
 var f ;
@@ -40,39 +40,38 @@ function fileready(dna){
   jdna = join(dna,'');
   console.log(jdna);
   console.log(jdna.length);
-  var rna1=jdna.replace(/A/,"U")
-  var rna2=rna1.replace(/T/,"A")
-  var rna3=rna2.replace(/C/,"G")
-  rna=rna3.replace(/G/,"C")
+  var rna1=jdna.replace(/A/g,"U");
+  var rna2=rna1.replace(/T/g,"A");
+  var rna3=rna2.replace(/C/g,"G");
+  jrna=rna3.replace(/G/g,"C");
+  console.log(jrna);
+  console.log(jrna.length);
 }
 //
 function draw() {
   //
   base = jdna.charAt(i);
+  baseRNA = jrna.charAt(i);
   noFill();
   //DNA RNA drawing code
   if (makeRNA){ //if RNA is TRUE my mousedragged...
     if (base =='G'){
-        baseRNA ='C';
         clrRNA = clrC;
         clr = clrG;}
     else if (base=='C'){
-       baseRNA ='G';
        clrRNA = clrG;
        clr = clrC;}
     else if (base=='A'){
-       baseRNA ='U';
        clrRNA = clrT;
        clr = clrA ;}
     else {
-       baseRNA ='A';
        clrRNA = clrA;
        clr = clrT;}
     textFont(f);
     fill(clr);
     text(base,mouseX,mouseY);
     fill(clrRNA);
-    text(baseRNA,mouseX,mouseY+20);
+    text(baseRNA,mouseX,mouseY+17);
     //if AUG detected in rna then I should display Ribosomes
   }else{ //just draw dna when mousemoved
     if (base =='G'){

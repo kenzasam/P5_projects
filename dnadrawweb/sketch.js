@@ -64,42 +64,33 @@ function draw() {
   noFill();
   //DNA RNA drawing code
   if (makeRNA){ //if RNA is TRUE my mousedragged...
-    if (base =='G'){
-        clrRNA = clrC;
-        clr = clrG;}
-    else if (base=='C'){
-       clrRNA = clrG;
-       clr = clrC;}
-    else if (base=='A'){
-       clrRNA = clrT;
-       clr = clrA ;}
-    else {
-       clrRNA = clrA;
-       clr = clrT;}
     textFont(f);
-    fill(clr);
+    basecolor(base);
     text(base,mouseX,mouseY);
-    fill(clrRNA);
+    basecolor(baseRNA);
     text(baseRNA,mouseX,mouseY+17);
-    if (startodon.includes(i)==true){
-      mmm
-    }//if AUG detected in rna then I should display Ribosomes
+    //if (startcodon.includes(i)==true){
+  //    mmm
+  //  }//if AUG detected in rna then I should display Ribosomes
   }else{ //just draw dna when mousemoved
-    if (base =='G'){
-        clr = clrG;}
-    else if (base=='C'){
-       clr = clrC;}
-    else if (base=='A'){
-       clr = clrA ;}
-    else {
-       clr = clrT;}
     textFont(f);
-    baseclr(base)
+    basecolor(base);
     text(base,mouseX,mouseY);
   }
 }
 //
-
+function basecolor(base){
+  if (base =='G'){
+      clr = clrG;}
+  else if (base=='C'){
+     clr = clrC;}
+  else if (base=='A'){
+     clr = clrA ;}
+  else { // T or U
+     clr = clrT;}
+  fill(clr);
+}
+//
 function mouseDragged(){
     //base = jdna.charAt(i);
     //noFill();
@@ -113,6 +104,7 @@ function mouseDragged(){
 //
 function mouseMoved(){
   makeRNA=false;
+  console.log('i just made rna = false')
   if (i == jdna.length){
     noLoop();
   }

@@ -13,6 +13,8 @@ var base;
 var baseRNA;
 var canvas;
 var makeRNA;
+var startcodons=[];
+var counter;
 
 function preload(){
   dna = loadStrings('dna.txt', fileready);
@@ -42,10 +44,17 @@ function fileready(dna){
   console.log(jdna.length);
   var rna1=jdna.replace(/A/g,"U");
   var rna2=rna1.replace(/T/g,"A");
-  var rna3=rna2.replace(/C/g,"G");
-  jrna=rna3.replace(/G/g,"C");
+  var rna3=rna2.replace(/C/g,"F");
+  var rna4=rna3.replace(/G/g,"C");
+  jrna=rna4.replace(/F/g,"G");
   console.log(jrna);
   console.log(jrna.length);
+  var idx = 0;
+  //console.log(jrna.indexOf("AUG"));
+  for (idx = 0; (idx = jrna.indexOf("AUG", idx)) >= 0; idx++){
+    startcodons.push(idx);
+  }
+  console.log(startcodons);
 }
 //
 function draw() {
@@ -72,7 +81,9 @@ function draw() {
     text(base,mouseX,mouseY);
     fill(clrRNA);
     text(baseRNA,mouseX,mouseY+17);
-    //if AUG detected in rna then I should display Ribosomes
+    if (startodon.includes(i)==true){
+      mmm
+    }//if AUG detected in rna then I should display Ribosomes
   }else{ //just draw dna when mousemoved
     if (base =='G'){
         clr = clrG;}
@@ -83,12 +94,12 @@ function draw() {
     else {
        clr = clrT;}
     textFont(f);
-    fill(clr);
+    baseclr(base)
     text(base,mouseX,mouseY);
   }
 }
 //
-//
+
 function mouseDragged(){
     //base = jdna.charAt(i);
     //noFill();

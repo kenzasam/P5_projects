@@ -48,14 +48,15 @@ function setup() {
  text("Click & Drag to make RNA", 15, 100);
  text("press ENTER to exit", 15, 60);
  basetrail= new BaseTrail();
- //basetrail2= new BaseTrail();
+ basetrailrna = new BaseTrailrna();
 }
 //
 function fileready(dna){
-  //"https://github.com/kenzasam/kenzascience/blob/gh-pages/dna.txt");
+  //edit the incoming FASTA sequences to a string of bases (ACTG), no spaces, no text
   jdna = join(dna,'');
   console.log(jdna);
   console.log(jdna.length);
+  //convert DNA string into RNA string
   var rna1=jdna.replace(/A/g,"U");
   var rna2=rna1.replace(/T/g,"A");
   var rna3=rna2.replace(/C/g,"F");
@@ -63,13 +64,12 @@ function fileready(dna){
   jrna=rna4.replace(/F/g,"G");
   console.log(jrna);
   console.log(jrna.length);
+  //make a list of all startcodon position indices
   var idx = 0;
-  //console.log(jrna.indexOf("AUG"));
-  //make a list of all startsodon position indices
-  //for (idx = 0; (idx = jrna.indexOf("AUG", idx)) >= 0; idx++){
-  //  startcodons.push(idx);
-  //}
-  //console.log(startcodons);
+  for (idx = 0; (idx = jrna.indexOf("AUG", idx)) >= 0; idx++){
+    startcodons.push(idx);
+  }
+  console.log(startcodons);
 }
 //
 function draw() {
@@ -80,19 +80,32 @@ function draw() {
   noFill();
   //DNA RNA drawing code
   if (makeRNA){ //if RNA is TRUE my mousedragged...
-    //console.log('RNA')
     basetrail.update(dnabase);
     basetrail.show(dnabase);
-    basetrail.update(rnabase);
-    basetrail.show(rnabase);
-    //text(rnabase,mouseX,mouseY+17);
-
-      //ellipse(mouseX, mouseY-random(5,3),25,35);
+    basetrailrna.update(rnabase);
+    basetrailrna.show(rnabase);
+    //if AUG detected in rna then I should display Ribosome.
+    //Should also redraw the old ribosomes...
+    if (startcodons.includes(i)==true){
+      for (var n=mx.length-1;n>0;n--){ //store the x and y value in an array of 4
+        mx[n]=mx[n-1];
+        my[n]=my[n-1];
+      }
+      mx[0]=mouseX;
+      my[0]=mouseY;
+      //console.log(mx);
+      //console.log(my);
+      for (var n=0;n<mx.length;n++){
+        fill(250);
+        ellipse(mx[n], my[n]-random(5,3),15,25);
+      }
+    }
   }else{ //just draw dna when mousemove
-    //console.log('DNA')
     basetrail.update(dnabase);
     basetrail.show(dnabase);
-  }//if AUG detected in rna then I should display Ribosomes. Bt I should also redraw the old ribosomes...
+    basetrailrna.show(rnabase);
+  }
+
 }
 //
 function queryNucleotide(){
@@ -153,31 +166,46 @@ function keyPressed(){
   }
 }
 
+function Startcodons(){
+  if (startcodons.includes(i)==true){
+    this.x=[];
+    this.y=[];
+
+    this.update = function(){
+      for (var n=this.x.length-1;n>0;n--){ //store the x and y value in an array of 4
+        this.x[n]=this.x[n-1];
+        this.y[n]=this.y[n-1];
+      }
+      this.x[0]=mouseX;
+      this.y[0]=mouseY;
+      //console.log(mx);
+      //console.log(my);
+    }
+    this.show=function(){
+      for (var n=0;n<this.x.length;n++){
+        fill(250);
+        ellipse(this.x[n], this.y[n]-random(5,3),15,25);
+      }
+    }
+
+  }
+}
+
 function BaseTrail(){
   //this.x=mouseX;
   //this.y=mouseY;
   //this.base=base;
   this.historyDNA=[];
-  this.historyRNA=[];
   //this.type=type;
 
   this.update=function(base){
     this.base = base;
     this.color = this.basecolor(this.base);
-    if (this.base == dnabase){
-      this.x=mouseX;
-      this.y=mouseY;
-      console.log('its a baseeeeee')
-      var v={x:this.x , y:this.y, base:this.base , clr:this.color};
-      this.historyDNA.push(v);
-    }
-    else if (this.base == rnabase){
-      this.x=mouseX;
-      this.y=mouseY-12;
-      console.log('its an rna baseeeeee')
-      var v={x:this.x , y:this.y, base:this.base , clr:this.color};
-      this.historyRNA.push(v);
-    }
+    this.x=mouseX;
+    this.y=mouseY;
+    console.log('its a baseeeeee')
+    var v={x:this.x , y:this.y, base:this.base , clr:this.color};
+    this.historyDNA.push(v);
     //console.log(this.history);
   }
 
@@ -192,12 +220,7 @@ function BaseTrail(){
     //text(this.base,this.x,this.y);
     //console.log(this.base);
     //console.log(this.x);
-    if (this.base == dnabase){
-      nanana=this.historyDNA;
-    }
-    else if (this.type == rnabase){
-      nanana=this.historyRNA;
-    }
+    nanana=this.historyDNA;
     for (var i=0;i<nanana.length;i++){
       var pos = nanana[i];
       fill(pos.clr);
@@ -206,7 +229,6 @@ function BaseTrail(){
       //console.log(pos.x)
       //console.log(pos.y)
     }
-    //console.log(this.history);
   }
 
   this.basecolor=function(base){
@@ -222,5 +244,34 @@ function BaseTrail(){
        clr = clrT;}
     return clr;
     //console.log('puuewpew');
+  }
+}
+//
+function BaseTrailrna(){
+  this.historyRNA=[];
+
+  this.update=function(base){
+    this.base = base;
+    this.color = basetrail.basecolor(this.base);
+    this.x=mouseX;
+    this.y=mouseY-12;
+    //console.log('its an rna baseeeeee')
+    var v={x:this.x , y:this.y, base:this.base , clr:this.color};
+    this.historyRNA.push(v);
+  }
+    //console.log(this.historyRNA);
+
+  this.show = function(base){
+    this.base= base;
+    textFont(f);
+    nanana=this.historyRNA;
+    for (var i=0;i<nanana.length;i++){
+      var pos = nanana[i];
+      fill(pos.clr);
+      text(pos.base,pos.x,pos.y);
+      //console.log(pos.base)
+      //console.log(pos.x)
+      //console.log(pos.y)
+    }
   }
 }

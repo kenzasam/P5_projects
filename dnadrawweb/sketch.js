@@ -32,8 +32,6 @@ function setup() {
  canvas.position(0,0);
  canvas.style('z-index', '-1');
  smooth();
- //ackground(255);
- f = textFont('Ariel',26,true); // courrier, 16 point, anti-aliasing on;
  //instructional text on top canvas
  info=textFont('Ariel',10);
  fill(200);
@@ -41,6 +39,7 @@ function setup() {
  text("press DEL to clear canvas", 15, 80);
  text("Click & Drag to make RNA", 15, 100);
  text("press ENTER to exit", 15, 60);
+
 }
 //
 function fileready(dna){

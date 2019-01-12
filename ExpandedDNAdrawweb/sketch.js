@@ -1,6 +1,7 @@
-var dna ;
-var jrna;
-var jdna;
+var dna;
+var fastatitle;
+var jrna=[];
+var jdna=[];
 var clrA='#91DFAA' ;
 var clrC='#5FACA3';
 var clrT='#1E796F';
@@ -17,27 +18,27 @@ var counter;
 var num=4;
 var mx=[];
 var my=[];
+var input;
+var jsonhere; //if this is true, means data got
+//succesfully loaded. , then you can start shaping DNA fasta
+var nucdatahere;
+var startdrawing;
 var apibase="https://eutils.ncbi.nlm.nih.gov/entrez/eutils/";
 var apikey="&api_key=67440c4bd547d9933874db2cfb7810390d08";
-var input;
-var nucdatahere; //if this is true, means data got
-//succesfully loaded. , then you can start shaping DNA fasta
+var fastafile;
 
 function preload(){
-  dna = loadStrings('dna.txt', fileready);
+  //dna = loadStrings('dna.txt', fileready);
   largeunit = loadImage("largesubunit.png");
   //smallunit = loadImage("smallsubunit.tif");
 }
-//
+
+
 function setup() {
  canvas = createCanvas(windowWidth, windowHeight);
  canvas.position(0,0);
  canvas.style('z-index', '-1');
  smooth();
- //actions when button is pressed, in index.html
- var button = select('#submit');
- button.mousePressed(queryNucleotide);
- input=select('#nucleotide');
  //ackground(255);
  f = textFont('Ariel',20,true); // courrier, 16 point, anti-aliasing on;
  //instructional text on top canvas
@@ -49,77 +50,100 @@ function setup() {
  text("press ENTER to exit", 15, 60);
  basetrail= new BaseTrail();
  basetrailrna = new BaseTrailrna();
-}
-//
-function fileready(dna){
-  //edit the incoming FASTA sequences to a string of bases (ACTG), no spaces, no text
-  jdna = join(dna,'');
-  console.log(jdna);
-  console.log(jdna.length);
-  //convert DNA string into RNA string
-  var rna1=jdna.replace(/A/g,"U");
-  var rna2=rna1.replace(/T/g,"A");
-  var rna3=rna2.replace(/C/g,"F");
-  var rna4=rna3.replace(/G/g,"C");
-  jrna=rna4.replace(/F/g,"G");
-  console.log(jrna);
-  console.log(jrna.length);
-  //make a list of all startcodon position indices
-  var idx = 0;
-  for (idx = 0; (idx = jrna.indexOf("AUG", idx)) >= 0; idx++){
-    startcodons.push(idx);
-  }
-  console.log(startcodons);
+ detectribosome = new Startcodons();
+ //actions when button is pressed, in index.html
+ var button = select('#submit');
+ button.mousePressed(eutilSearch);
+ input=select('#nucleotide');
+
 }
 //
 function draw() {
   //
   background(255);
-  dnabase = jdna.charAt(i);
-  rnabase = jrna.charAt(i);
-  noFill();
-  //DNA RNA drawing code
-  if (makeRNA){ //if RNA is TRUE my mousedragged...
-    basetrail.update(dnabase);
-    basetrail.show(dnabase);
-    basetrailrna.update(rnabase);
-    basetrailrna.show(rnabase);
-    //if AUG detected in rna then I should display Ribosome.
-    //Should also redraw the old ribosomes...
-    if (startcodons.includes(i)==true){
-      for (var n=mx.length-1;n>0;n--){ //store the x and y value in an array of 4
-        mx[n]=mx[n-1];
-        my[n]=my[n-1];
+  if (startdrawing){
+    //console.log('heloooooooo')
+    dnabase = jdna.charAt(i);
+    rnabase = jrna.charAt(i);
+    noFill();
+    //DNA RNA drawing code
+    if (makeRNA){ //if RNA is TRUE my mousedragged...
+      basetrail.update(dnabase);
+      basetrail.show(dnabase);
+      basetrailrna.update(rnabase);
+      basetrailrna.show(rnabase);
+      //if AUG detected in rna then I should display Ribosome.
+      //Should also redraw the old ribosomes...
+      if (startcodons.includes(i)==true){
+        console.log('RIBOSOME');
+        detectribosome.update();
+        detectribosome.show();
       }
-      mx[0]=mouseX;
-      my[0]=mouseY;
-      //console.log(mx);
-      //console.log(my);
-      for (var n=0;n<mx.length;n++){
-        fill(250);
-        ellipse(mx[n], my[n]-random(5,3),15,25);
+      else {
+        console.log('boo');
       }
+    }else{ //just draw dna when mousemove
+      basetrail.update(dnabase);
+      basetrail.show(dnabase);
+      basetrailrna.show(rnabase);
     }
-  }else{ //just draw dna when mousemove
-    basetrail.update(dnabase);
-    basetrail.show(dnabase);
-    basetrailrna.show(rnabase);
   }
+}
+//
+function eutilSearch(){
+  //Esearch
+  query = input.value()+"[orgn]";
+  var searchurl=apibase+"esearch.fcgi?db=nucleotide&retmode=json&rettype=json&term="+query+apikey+"&usehistory=y";
+  loadJSON(searchurl,gotSome);
+  console.log('ok');
+}
+//
+function gotSome(data){
+  console.log(data);
+  jsonhere=data;
+  if (jsonhere){
+    //var webenv=jsonhere.esearchresult.webenv;
+    //var querykey=jsonhere.esearchresult.querykey;
+    //var fetchurl=apibase+"efetch.fcgi?db=nucleotide&WebEnv="+webenv+"&query_key="+querykey+"&rettype=fasta&retmode=text&retmax=1"+apikey;
+    var id=jsonhere.esearchresult.idlist[0];
+    var fetchurl=apibase+"efetch.fcgi?db=nucleotide&id="+id+"&rettype=fasta&retmode=text"+apikey;
+    //console.log(url)
+    loadStrings(fetchurl,gotData);
+    console.log('fetching');
+    //console.log(fastadna);
+    //eutilFetch();
+  }
+}
 
-}
-//
-function queryNucleotide(){
-  var url=apibase+"efetch.fcgi?db=nucleotide&rettype=fasta&id="+input.value()+apikey;
-  //console.log(url)
-  fastadna=loadStrings(url,gotData);
-  console.log(fastadna);
-}
-//
-function gotData(data){
-  swuldna = join(fastadna,'');
-  console.log(shwuldna);
-  println(data);
-  nucdatahere=data;
+function gotData(fastafile){
+  //shwuldna = join(fastadna,'');
+  //console.log(shwuldna);
+  //console.log(fastafile);
+  console.log(fastafile);
+  nucdatahere=fastafile;
+  if (nucdatahere){
+    var fastatitle=fastafile[0];
+    console.log(fastatitle)
+    var rawdna=fastafile.slice(1);
+    jdna = join(rawdna,'');
+    console.log(jdna);
+    console.log(jdna.length);
+    //convert DNA string into RNA string
+    var rna1=jdna.replace(/A/g,"U");
+    var rna2=rna1.replace(/T/g,"A");
+    var rna3=rna2.replace(/C/g,"F");
+    var rna4=rna3.replace(/G/g,"C");
+    jrna=rna4.replace(/F/g,"G");
+    console.log(jrna);
+    console.log(jrna.length);
+    //make a list of all startcodon position indices
+    var idx = 0;
+    for (idx = 0; (idx = jrna.indexOf("AUG", idx)) >= 0; idx++){
+      startcodons.push(idx);
+    }
+    console.log(startcodons);
+    startdrawing=true;
+  }
 }
 //
 function RibosomeBig(){
@@ -134,23 +158,25 @@ function RibosomeSmall(){
 }
 //
 function mouseDragged(){
-    //base = jdna.charAt(i);
-    //noFill();
-  makeRNA=true;
-  //console.log('makerna = true')
-  if (i == jdna.length){
-      noLoop();
+  if (startdrawing){
+    makeRNA=true;
+    //console.log('makerna = true')
+    if (i == jdna.length){
+        noLoop();
+    }
+    i = i+1;
   }
-  i = i+1;
 }
 //
 function mouseMoved(){
-  makeRNA=false;
-  console.log('i just made rna = false')
-  if (i == jdna.length){
-    noLoop();
+  if (startdrawing){
+    makeRNA=false;
+    //console.log('i just made rna = false')
+    if (i == jdna.length){
+      noLoop();
+    }
+    i = i+1;
   }
-  i = i+1;
 }
 //
 function keyPressed(){
@@ -167,28 +193,30 @@ function keyPressed(){
 }
 
 function Startcodons(){
-  if (startcodons.includes(i)==true){
-    this.x=[];
-    this.y=[];
+    this.historyRib=[];
 
     this.update = function(){
+      this.x=mouseX;
+      this.y=mouseY;
+      var v=createVector(this.x,this.y);
+      this.historyRib.push(v);
+      console.log(this.historyRib);
+      /*
       for (var n=this.x.length-1;n>0;n--){ //store the x and y value in an array of 4
         this.x[n]=this.x[n-1];
         this.y[n]=this.y[n-1];
-      }
-      this.x[0]=mouseX;
-      this.y[0]=mouseY;
+      }*/
+
       //console.log(mx);
       //console.log(my);
     }
     this.show=function(){
-      for (var n=0;n<this.x.length;n++){
+      for (var n=0;n<this.historyRib.length;n++){
+        var posrib = this.historyRib[i];
         fill(250);
-        ellipse(this.x[n], this.y[n]-random(5,3),15,25);
+        ellipse(posrib.x, posrib.y-random(5,3),15,25);
       }
     }
-
-  }
 }
 
 function BaseTrail(){
@@ -211,15 +239,8 @@ function BaseTrail(){
 
   this.show = function(base){
     this.base= base;
-    //this.x=mouseX;
-    //this.y=mouseY;
     //f = textFont('Ariel',20,true);
     textFont(f);
-    //this.basecolor(this.base);
-    //console.log('okay2');
-    //text(this.base,this.x,this.y);
-    //console.log(this.base);
-    //console.log(this.x);
     nanana=this.historyDNA;
     for (var i=0;i<nanana.length;i++){
       var pos = nanana[i];

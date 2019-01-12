@@ -15,9 +15,9 @@ var canvas;
 var makeRNA;
 var startcodons=[];
 var counter;
-var num=4;
-var mx=[];
-var my=[];
+//var num=4;
+//var mx=[];
+//var my=[];
 var input;
 var jsonhere; //if this is true, means data got
 //succesfully loaded. , then you can start shaping DNA fasta
@@ -27,40 +27,39 @@ var apibase="https://eutils.ncbi.nlm.nih.gov/entrez/eutils/";
 var apikey="&api_key=67440c4bd547d9933874db2cfb7810390d08";
 var fastafile;
 
+/*
 function preload(){
-  //dna = loadStrings('dna.txt', fileready);
   largeunit = loadImage("largesubunit.png");
   //smallunit = loadImage("smallsubunit.tif");
 }
-
+*/
 
 function setup() {
  canvas = createCanvas(windowWidth, windowHeight);
  canvas.position(0,0);
  canvas.style('z-index', '-1');
+ canvas.style('display', 'block');
  smooth();
- //ackground(255);
  f = textFont('Ariel',20,true); // courrier, 16 point, anti-aliasing on;
  //instructional text on top canvas
  info=textFont('Ariel',10);
- fill(200);
+ fill(100);
  textFont(info);
- text("press DEL to clear canvas", 15, 80);
+ text("Search for an organism!", 15, 80);
+ text("Mouve mouse to draw DNA", 15, 80);
  text("Click & Drag to make RNA", 15, 100);
- text("press ENTER to exit", 15, 60);
+ text("press SPACEBAR to clear canvas", 15, 60);
  basetrail= new BaseTrail();
  basetrailrna = new BaseTrailrna();
- detectribosome = new Startcodons();
+ //detectribosome = new Startcodons();
  //actions when button is pressed, in index.html
  var button = select('#submit');
  button.mousePressed(eutilSearch);
  input=select('#nucleotide');
-
 }
 //
 function draw() {
-  //
-  background(255);
+  background(220);
   if (startdrawing){
     //console.log('heloooooooo')
     dnabase = jdna.charAt(i);
@@ -72,6 +71,7 @@ function draw() {
       basetrail.show(dnabase);
       basetrailrna.update(rnabase);
       basetrailrna.show(rnabase);
+      /*
       //if AUG detected in rna then I should display Ribosome.
       //Should also redraw the old ribosomes...
       if (startcodons.includes(i)==true){
@@ -82,6 +82,7 @@ function draw() {
       else {
         console.log('boo');
       }
+      */
     }else{ //just draw dna when mousemove
       basetrail.update(dnabase);
       basetrail.show(dnabase);
@@ -95,11 +96,11 @@ function eutilSearch(){
   query = input.value()+"[orgn]";
   var searchurl=apibase+"esearch.fcgi?db=nucleotide&retmode=json&rettype=json&term="+query+apikey+"&usehistory=y";
   loadJSON(searchurl,gotSome);
-  console.log('ok');
+  //console.log('ok');
 }
 //
 function gotSome(data){
-  console.log(data);
+  console.log('Searching...');
   jsonhere=data;
   if (jsonhere){
     //var webenv=jsonhere.esearchresult.webenv;
@@ -107,60 +108,48 @@ function gotSome(data){
     //var fetchurl=apibase+"efetch.fcgi?db=nucleotide&WebEnv="+webenv+"&query_key="+querykey+"&rettype=fasta&retmode=text&retmax=1"+apikey;
     var id=jsonhere.esearchresult.idlist[0];
     var fetchurl=apibase+"efetch.fcgi?db=nucleotide&id="+id+"&rettype=fasta&retmode=text"+apikey;
-    //console.log(url)
+    //console.log(fetchurl)
     loadStrings(fetchurl,gotData);
-    console.log('fetching');
-    //console.log(fastadna);
-    //eutilFetch();
   }
 }
 
 function gotData(fastafile){
-  //shwuldna = join(fastadna,'');
-  //console.log(shwuldna);
-  //console.log(fastafile);
+  console.log('Found something! Fetching organism FASTA...');
   console.log(fastafile);
   nucdatahere=fastafile;
   if (nucdatahere){
     var fastatitle=fastafile[0];
+    console.log('This is what I found:')
     console.log(fastatitle)
     var rawdna=fastafile.slice(1);
     jdna = join(rawdna,'');
-    console.log(jdna);
-    console.log(jdna.length);
+    //console.log(jdna);
+    //console.log(jdna.length);
+    console.log('Converted into DNA.')
     //convert DNA string into RNA string
     var rna1=jdna.replace(/A/g,"U");
     var rna2=rna1.replace(/T/g,"A");
     var rna3=rna2.replace(/C/g,"F");
     var rna4=rna3.replace(/G/g,"C");
     jrna=rna4.replace(/F/g,"G");
-    console.log(jrna);
-    console.log(jrna.length);
+    //console.log(jrna);
+    //console.log(jrna.length);
+    console.log('Converted into RNA.')
     //make a list of all startcodon position indices
     var idx = 0;
     for (idx = 0; (idx = jrna.indexOf("AUG", idx)) >= 0; idx++){
       startcodons.push(idx);
     }
+    console.log('Found start codons at following positions...');
     console.log(startcodons);
     startdrawing=true;
+    loop();
   }
-}
-//
-function RibosomeBig(){
-
-  //x=
-  //y=
-  image(largeunit,mouseX, mouseY-random(5,3));
-}
-//
-function RibosomeSmall(){
-  image(largeunit,mouseX, mouseY-4+random(-1,1));
 }
 //
 function mouseDragged(){
   if (startdrawing){
     makeRNA=true;
-    //console.log('makerna = true')
     if (i == jdna.length){
         noLoop();
     }
@@ -171,7 +160,6 @@ function mouseDragged(){
 function mouseMoved(){
   if (startdrawing){
     makeRNA=false;
-    //console.log('i just made rna = false')
     if (i == jdna.length){
       noLoop();
     }
@@ -180,6 +168,7 @@ function mouseMoved(){
 }
 //
 function keyPressed(){
+  /*
   if ((keyIsPressed == true) && (keyCode === DELETE|keyCode === BACKSPACE)){
       background(255);
       i=0;
@@ -190,23 +179,43 @@ function keyPressed(){
     noLoop();
     remove();
   }
+  */
+  if ((keyIsPressed == true) && (keyCode === 'c')){
+    console.log('ello')
+    noLoop();
+    background(255);
+    i=0;
+    basetrail.history=[];
+    startdrawing=false;
+  }
 }
-
+//
+/*
+function RibosomeBig(){
+  //x=
+  //y=
+  image(largeunit,mouseX, mouseY-random(5,3));
+}
+//
+function RibosomeSmall(){
+  image(largeunit,mouseX, mouseY-4+random(-1,1));
+}
+*/
+//
+/*
 function Startcodons(){
     this.historyRib=[];
-
     this.update = function(){
       this.x=mouseX;
       this.y=mouseY;
       var v=createVector(this.x,this.y);
       this.historyRib.push(v);
       console.log(this.historyRib);
-      /*
-      for (var n=this.x.length-1;n>0;n--){ //store the x and y value in an array of 4
-        this.x[n]=this.x[n-1];
-        this.y[n]=this.y[n-1];
-      }*/
 
+      //for (var n=this.x.length-1;n>0;n--){ //store the x and y value in an array of 4
+      //  this.x[n]=this.x[n-1];
+      //  this.y[n]=this.y[n-1];
+      //}
       //console.log(mx);
       //console.log(my);
     }
@@ -218,13 +227,11 @@ function Startcodons(){
       }
     }
 }
-
+*/
+//
 function BaseTrail(){
-  //this.x=mouseX;
-  //this.y=mouseY;
-  //this.base=base;
+
   this.historyDNA=[];
-  //this.type=type;
 
   this.update=function(base){
     this.base = base;
@@ -281,7 +288,6 @@ function BaseTrailrna(){
     this.historyRNA.push(v);
   }
     //console.log(this.historyRNA);
-
   this.show = function(base){
     this.base= base;
     textFont(f);
@@ -295,4 +301,8 @@ function BaseTrailrna(){
       //console.log(pos.y)
     }
   }
+}
+//
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
 }

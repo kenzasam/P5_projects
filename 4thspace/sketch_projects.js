@@ -46,8 +46,8 @@ function setup() {
  //instructional text on top canvas
  basefont=textFont('Ariel',10);
  basetrail= new BaseTrail();
- basetrailrna = new BaseTrailrna();
- detectribosome = new Startcodons();
+ //basetrailrna = new BaseTrailrna();
+ //detectribosome = new Startcodons();
  //actions when button is pressed, in index.html
  var buttonsubmit = select('#submit');
  buttonsubmit.mousePressed(eutilSearch);
@@ -71,6 +71,7 @@ function draw() {
     if (makeRNA){ //if RNA is TRUE , mouse is dragged...
       basetrail.update(dnabase);
       basetrail.show(dnabase);
+      /*
       basetrailrna.update(rnabase);
       basetrailrna.show(rnabase);
 
@@ -85,11 +86,11 @@ function draw() {
       else {
         console.log('boo');
       }
-
+      */
     }else{ //just draw dna when mousemove (no dragging)
       basetrail.update(dnabase);
       basetrail.show(dnabase);
-      basetrailrna.show(rnabase);
+      //basetrailrna.show(rnabase);
     }
   }
 }
@@ -184,8 +185,8 @@ function RibosomeSmall(){
   image(largeunit,mouseX, mouseY-4+random(-1,1));
 }
 */
-//
 
+/*
 function Startcodons(){
     this.historyRib=[];
     this.update = function(){
@@ -210,6 +211,7 @@ function Startcodons(){
       }
     }
 }
+*/
 
 function BaseTrail(){
   this.historyDNA=[];
@@ -248,6 +250,8 @@ function BaseTrail(){
     return clr;
   }
 }
+
+/*
 function BaseTrailrna(){
   this.historyRNA=[];
   this.update=function(base){
@@ -273,6 +277,7 @@ function BaseTrailrna(){
       this.historyRNA=[]
     }
 }
+*/
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);

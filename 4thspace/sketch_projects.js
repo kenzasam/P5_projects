@@ -1,7 +1,7 @@
 //by Kenza Samlali, 2020
 // PROJECT NAME: Alleles
-// ABOUT: p5.js with search function for NCBI database, data visualisation.
-// This script is written for a touchscreen
+// ABOUT: p5.js with search function for NCBI database, data visualisation of nucleotide sequences.
+// This script is adapted to work on a touchscreen only
 //
 var dna;
 var jrna=[];
@@ -12,7 +12,7 @@ var clrT='#1E796F';
 var clrG='#E35B96';
 var clr ;
 var f ;
-var info;
+var basefont;
 var i=0;
 var base;
 var canvas;
@@ -44,56 +44,48 @@ function setup() {
  smooth();
  f = textFont('Ariel',30,true); // courrier, 16 point, anti-aliasing on;
  //instructional text on top canvas
- info=textFont('Ariel',10);
+ basefont=textFont('Ariel',10);
  basetrail= new BaseTrail();
  basetrailrna = new BaseTrailrna();
- //detectribosome = new Startcodons();
+ detectribosome = new Startcodons();
  //actions when button is pressed, in index.html
- var button = select('#submit');
- button.mousePressed(eutilSearch);
+ var buttonsubmit = select('#submit');
+ buttonsubmit.mousePressed(eutilSearch);
  input=select('#nucleotide');
+ var buttonclear = select('#clear');
+ buttonclear.mousePressed(cleared);
 }
-//
 function draw() {
-  background(51);
+  background('#22242D')
   fill(100);
-  textFont(info);
-  //text("Search for an organism, tissue, ... f.e. mus musculus!", 15, 80);
-  //text("Move your mouse to draw DNA, click & drag to make RNA", 15, 100);
-  //text("press SPACEBAR to clear canvas", 15, 140);
-
   if (startdrawing){
     //console.log('heloooooooo')
     fill(100);
-    textFont(info);
-    text("We found this: " +fastatitle, windowWidth-300, windowHeight-300);
+    textFont(basefont);
+    text("We found this nucleotide squence: ");
+    text(fastatitle, 40, windowHeight-40);
     dnabase = jdna.charAt(i);
     rnabase = jrna.charAt(i);
     noFill();
     //DNA RNA drawing code
-    if (touches.length==2){
-      makeRNA=true;
-      if (i == jdna.length){
-          noLoop();
-      }
-      i = i+1;
     if (makeRNA){ //if RNA is TRUE , mouse is dragged...
       basetrail.update(dnabase);
       basetrail.show(dnabase);
       basetrailrna.update(rnabase);
       basetrailrna.show(rnabase);
-      /*
+
       //if AUG detected in rna then I should display Ribosome.
       //Should also redraw the old ribosomes...
       if (startcodons.includes(i)==true){
         console.log('RIBOSOME');
         detectribosome.update();
+        console.log('update done now show');
         detectribosome.show();
       }
       else {
         console.log('boo');
       }
-      */
+
     }else{ //just draw dna when mousemove (no dragging)
       basetrail.update(dnabase);
       basetrail.show(dnabase);
@@ -101,15 +93,11 @@ function draw() {
     }
   }
 }
-//
-function eutilSearch(){
-  //Esearch
+function eutilSearch(){ //NCBI Esearch
   query = input.value()+"[orgn]";
   var searchurl=apibase+"esearch.fcgi?db=nucleotide&retmode=json&rettype=json&term="+query+apikey+"&usehistory=y";
-  loadJSON(searchurl,gotSome);
-  //console.log('ok');
+  loadJSON(searchurl,gotSome); //console.log('ok');
 }
-//
 function gotSome(data){
   console.log('Searching...');
   jsonhere=data;
@@ -123,7 +111,6 @@ function gotSome(data){
     loadStrings(fetchurl,gotData);
   }
 }
-
 function gotData(fastafile){
   console.log('Found something! Fetching organism FASTA...');
   console.log(fastafile);
@@ -157,18 +144,16 @@ function gotData(fastafile){
     loop();
   }
 }
-//
-//function touch(){
-//  if (touches.length==2){
-//    makeRNA=true;
-//    if (i == jdna.length){
-//        noLoop();
-//    }
-//    i = i+1;
+function mouseDragged(){
+  if (startdrawing){
+    makeRNA=true;
+    if (i == jdna.length){
+        noLoop();
+    }
+    i = i+1;
   }
 }
-//
-function touchMoved(){
+function mouseMoved(){
   if (startdrawing){
     makeRNA=false;
     if (i == jdna.length){
@@ -177,29 +162,17 @@ function touchMoved(){
     i = i+1;
   }
 }
-//
-function keyPressed(){
-  /*
-  if ((keyIsPressed == true) && (keyCode === DELETE|keyCode === BACKSPACE)){
-      background(255);
-      i=0;
-      basetrail.history=[];
-      Loop();
-  }
-  if ((keyIsPressed == true) && (keyCode === ENTER | keyCode == RETURN)){
-    noLoop();
-    remove();
-  }
-  */
-  if ((keyIsPressed == true) && (keyCode === ' ')){
-    noLoop();
-    background(255);
-    i=0;
-    basetrail.history=[];
-    startdrawing=false;
-  }
+function cleared(){
+  noLoop();
+  basetrail.clear();
+  basetrailrna.clear();
+  //jdna=[];
+  //jrna=[];
+  //BaseTrail.historyDNA=[];
+  //BaseTrailrna.historyRNA=[];
+  startdrawing=false;
+  console.log('all reset');
 }
-//
 /*
 function RibosomeBig(){
   //x=
@@ -212,63 +185,55 @@ function RibosomeSmall(){
 }
 */
 //
-/*
+
 function Startcodons(){
     this.historyRib=[];
     this.update = function(){
       this.x=mouseX;
       this.y=mouseY;
-      var v=createVector(this.x,this.y);
-      this.historyRib.push(v);
-      console.log(this.historyRib);
-
+      console.log(this.y)
+      var ve={rx:this.x,ry:this.y};
+      console.log(ve)
+      this.historyRib.push(ve);
+      console.log("pos ribos"+this.historyRib);
       //for (var n=this.x.length-1;n>0;n--){ //store the x and y value in an array of 4
       //  this.x[n]=this.x[n-1];
       //  this.y[n]=this.y[n-1];
       //}
-      //console.log(mx);
-      //console.log(my);
     }
     this.show=function(){
-      for (var n=0;n<this.historyRib.length;n++){
-        var posrib = this.historyRib[i];
+      nnn=this.historyRib;
+      for (var n=0;n<nnn.length;n++){
+        var posribx = nnn[i];
         fill(250);
-        ellipse(posrib.x, posrib.y-random(5,3),15,25);
+        ellipse(posribx[i], posrib.y-random(5,3),15,25);
       }
     }
 }
-*/
-//
+
 function BaseTrail(){
-
   this.historyDNA=[];
-
   this.update=function(base){
     this.base = base;
     this.color = this.basecolor(this.base);
     this.x=mouseX;
     this.y=mouseY;
-    console.log('its a baseeeeee')
     var v={x:this.x , y:this.y, base:this.base , clr:this.color};
     this.historyDNA.push(v);
-    //console.log(this.history);
   }
-
   this.show = function(base){
     this.base= base;
-    //f = textFont('Ariel',20,true);
     textFont(f);
     nanana=this.historyDNA;
     for (var i=0;i<nanana.length;i++){
       var pos = nanana[i];
       fill(pos.clr);
       text(pos.base,pos.x,pos.y);
-      //console.log(pos.base)
-      //console.log(pos.x)
-      //console.log(pos.y)
+    }
+  this.clear = function(){
+      this.historyDNA=[]
     }
   }
-
   this.basecolor=function(base){
     this.base=base;
     //console.log('pewpew');
@@ -281,13 +246,10 @@ function BaseTrail(){
     else { // T or U
        clr = clrT;}
     return clr;
-    //console.log('puuewpew');
   }
 }
-//
 function BaseTrailrna(){
   this.historyRNA=[];
-
   this.update=function(base){
     this.base = base;
     this.color = basetrail.basecolor(this.base);
@@ -297,7 +259,6 @@ function BaseTrailrna(){
     var v={x:this.x , y:this.y, base:this.base , clr:this.color};
     this.historyRNA.push(v);
   }
-    //console.log(this.historyRNA);
   this.show = function(base){
     this.base= base;
     textFont(f);
@@ -306,13 +267,13 @@ function BaseTrailrna(){
       var pos = nanana[i];
       fill(pos.clr);
       text(pos.base,pos.x,pos.y);
-      //console.log(pos.base)
-      //console.log(pos.x)
-      //console.log(pos.y)
     }
   }
+  this.clear = function(){
+      this.historyRNA=[]
+    }
 }
-//
+
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
 }

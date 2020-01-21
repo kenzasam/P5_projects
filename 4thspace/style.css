@@ -1,10 +1,37 @@
 body {
   font-family: "Verdana", Verdana, serif;
   color: #EFF9F9;
-  font-size: 2vw;
+  font-size: 1vw;
   font-style: bold;
+  margin: 20px;
 }
 
+button {
+ background-color: #22242D;
+ border: 2px solid #e7e7e7;
+ border-radius: 12px;
+ color: white;
+ padding: 15px 32px;
+ text-decoration-color: white;
+ text-align: center;
+ text-decoration: none;
+ display: inline-block;
+ font-size: 16px;
+}
+
+.instructions{
+  display: inline-block;
+  padding: 5px;
+  background-color: rgba(255, 255, 255, 0.3);
+  top: 10px;
+  left: 10px;
+}
+
+.search{
+  position:absolute;
+  bottom: 10px;
+  right: 10px;
+}
 
 h1 {
   font-family: "Verdana", Verdana, serif;

@@ -14,15 +14,18 @@
     <script src="sketch_projects.js"></script>
   </head>
   <body>
-    <p>
-      Nucleotide: <input id="nucleotide" value="organism"></input>
-      <br>
+    <div class="instructions">
+      Instructions:<br>
+      Search for an animal, tissue, cell line, gene... f.e. mus musculus!<br>
+      Touch to draw DNA<br>
+      Two fingers to make RNA <br>
+    </div>
+    <div class="search">
+      Search: <input id="nucleotide" value=""></input>
+      <br><br>
       <button id="submit">submit</button>
-      <button id="clear">clear</button>
+      <button id="clear">clear canvas</button>
       <br>
-      Search for an organism, tissue, ... f.e. mus musculus!
-      <br>
-      Move your mouse to draw DNA, click & drag to make RNA
-    </p>
+    </div>
   </body>
 </html>

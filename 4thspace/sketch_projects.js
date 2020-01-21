@@ -46,14 +46,14 @@ function setup() {
  //instructional text on top canvas
  basefont=textFont('Ariel',10);
  basetrail= new BaseTrail();
- //basetrailrna = new BaseTrailrna();
+ basetrailrna = new BaseTrailrna();
  //detectribosome = new Startcodons();
  //actions when button is pressed, in index.html
  var buttonsubmit = select('#submit');
- buttonsubmit.mousePressed(eutilSearch);
+ buttonsubmit.touchStarted(eutilSearch);
  input=select('#nucleotide');
  var buttonclear = select('#clear');
- buttonclear.mousePressed(cleared);
+ buttonclear.touchStarted(cleared);
 }
 function draw() {
   background('#22242D')
@@ -68,13 +68,19 @@ function draw() {
     rnabase = jrna.charAt(i);
     noFill();
     //DNA RNA drawing code
-    if (makeRNA){ //if RNA is TRUE , mouse is dragged...
+    if (touches.length==2){
+      makeRNA=true;
       basetrail.update(dnabase);
       basetrail.show(dnabase);
-      /*
       basetrailrna.update(rnabase);
       basetrailrna.show(rnabase);
+      if (i == jdna.length){
+          noLoop();
+      }
+      i = i+1;
+    }
 
+      /*
       //if AUG detected in rna then I should display Ribosome.
       //Should also redraw the old ribosomes...
       if (startcodons.includes(i)==true){
@@ -87,12 +93,13 @@ function draw() {
         console.log('boo');
       }
       */
-    }else{ //just draw dna when mousemove (no dragging)
+   else{ //just draw dna when mousemove (no dragging)
+      console.log(i)
       basetrail.update(dnabase);
       basetrail.show(dnabase);
-      //basetrailrna.show(rnabase);
+      basetrailrna.show(rnabase);
     }
-  }
+ }
 }
 function eutilSearch(){ //NCBI Esearch
   query = input.value()+"[orgn]";
@@ -145,16 +152,8 @@ function gotData(fastafile){
     loop();
   }
 }
-function mouseDragged(){
-  if (startdrawing){
-    makeRNA=true;
-    if (i == jdna.length){
-        noLoop();
-    }
-    i = i+1;
-  }
-}
-function mouseMoved(){
+
+function touchMoved(){
   if (startdrawing){
     makeRNA=false;
     if (i == jdna.length){
@@ -165,8 +164,8 @@ function mouseMoved(){
 }
 function cleared(){
   noLoop();
-  basetrail.clear();
-  basetrailrna.clear();
+  basetrail.cleared();
+  basetrailrna.cleared();
   //jdna=[];
   //jrna=[];
   //BaseTrail.historyDNA=[];
@@ -232,7 +231,7 @@ function BaseTrail(){
       fill(pos.clr);
       text(pos.base,pos.x,pos.y);
     }
-  this.clear = function(){
+  this.cleared = function(){
       this.historyDNA=[]
     }
   }
@@ -251,7 +250,6 @@ function BaseTrail(){
   }
 }
 
-/*
 function BaseTrailrna(){
   this.historyRNA=[];
   this.update=function(base){
@@ -273,11 +271,11 @@ function BaseTrailrna(){
       text(pos.base,pos.x,pos.y);
     }
   }
-  this.clear = function(){
+  this.cleared = function(){
       this.historyRNA=[]
     }
 }
-*/
+
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
